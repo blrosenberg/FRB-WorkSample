@@ -1,4 +1,8 @@
-There are two output files: 
+This repository includes a browser-based data analysis paper and its .pdf equivalent. The browser-based version includes one Shiny-based dynamic visualization which is not present in the static versions, but they are otherwise identical.
+
+The browser-based version can be accessed at 
+
+There are two static output files: 
 one with the code blocks ```BenRosenberg-FRB-WorkSample.pdf```, 
 and one without them ```BenRosenberg-FRB-WorkSample-NOCODE.pdf```.
 
