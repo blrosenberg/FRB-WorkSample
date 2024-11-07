@@ -6,6 +6,10 @@ The data file ```prime-age.csv``` is a subset of the complete 2023 Monthly CPS d
 
 All pdf output is generated using vanilla RMarkdown and ggplot.
 
+Thanks for reading,
+
 Ben Rosenberg 
-github.com/blrosenberg
+
+https://www.github.com/blrosenberg
+
 ben.lane.rosenberg@gmail.com
