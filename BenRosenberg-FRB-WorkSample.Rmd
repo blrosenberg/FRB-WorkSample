@@ -2,8 +2,7 @@
 title: "Federal Reserve Bank of Minneapolis — Work Sample"
 author: "Ben Rosenberg"
 date: "`r Sys.Date()`"
-output:
-  bookdown::pdf_document2
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -93,7 +92,8 @@ donutAB = function(rate, A, B, metric) { #ggplot2 formulation for a simple donut
     theme_void() +
     scale_fill_manual(values=my_palette) +
     guides(fill="none") +
-    theme(plot.title = element_text(hjust=0.5, size=20, face="bold"))
+    theme(plot.title = element_text(hjust=0.5, size=12, face="bold"), 
+          plot.caption = element_text(hjust=1, face="italic", size=8))
   return(out)
 }
 
@@ -110,7 +110,9 @@ pctStyle = function(n, dec=2, suf="%") {
 }
 
 my_theme = theme_bw() +
-   theme(plot.title = element_text(hjust=0.5, size=15, face="bold"))
+   theme(plot.title = element_text(hjust=0.5, size=12, face="bold"),
+         plot.caption = element_text(hjust=0, face="italic", size=8))
+   
 
 monthscale = scale_x_continuous(breaks=c(1:12), labels=month.abb)
 
@@ -165,13 +167,13 @@ e2p = data.frame(month = All$month, #Employment to population by month including
 e2p_all = sum(All$employed) / sum(All$complete)
 
 donutAB(e2p_all, "Employed", "Other", "Employed") +
-  labs(title="Employment to population ratio\namong prime-age (ages 24–54) workers\nin the United States, 2023")
-
+  labs(title="Employment to population ratio\namong prime-age (ages 24–54) workers\nin the United States, 2023",
+       caption="Data Source: Census Bureau — Current Population Survey")
 ```
 
 Though the prompt called for a single statistic characterizing *all months*, I also calculated the statistic for *each* month in 2023 and have included a visualization of those data below including error bars at a 95% confidence interval.\
 
-```{r}
+```{r fig.height=4}
 e2p %>%
   ggplot(aes(x=month, y=E2P, 
              label=pctStyle(E2P),
@@ -179,9 +181,10 @@ e2p %>%
   geom_point() + 
   geom_line(linetype=2) +
   geom_errorbar(alpha=0.15, width=0.2) +
-  geom_label(hjust=0.1, vjust=1.5, size=3, alpha=0.7, position=position_dodge(width=1), label.size=NA) +
+  geom_label(hjust=0.1, vjust=1.5, size=2.5, alpha=0.7, position=position_dodge(width=1), label.size=NA) +
   labs(title = "Employment to population ratio by month\namong prime-age (ages 24–54) workers\nin the United States, 2023",
-       x="Month", y="Employment to population ratio") +
+       x="Month", y="Employment to population ratio",
+       caption="Data Source: US Census Bureau — Current Population Survey") +
   scale_y_continuous(labels=scales::percent, limits=c(0.8, 0.82)) +
   monthscale +
   my_theme
@@ -191,9 +194,9 @@ e2p %>%
 
 # Unemployment rate by sex
 
-Since this statistic asks the reader to compare two proportions, I have instead opted for a bar graph with error bars.\
+Since this statistic asks the reader to compare two proportions, I have opted for a simple bar graph with error bars corresponding with a 95% confidence interval.\
 
-```{r fig.height=4}
+```{r fig.height=3.5}
 unemp = data.frame(
   month = c(All$month, All$month),
   sex = c(rep("Male", 12), rep("Female", 12)),
@@ -223,7 +226,8 @@ ur.display %>% ggplot(aes(x=sex, y=unemployment, fill=sex, label=paste0(pctStyle
   geom_text(aes(y=(unemployment-0.004), vjust=1)) +
   geom_errorbar(aes(ymin=low, ymax=high), color="#5555555f", width=0.5) +
   scale_y_continuous("Unemployment rate", labels=scales::percent) +
-  labs(title="Unemploment rate by sex\namong prime-age (ages 24–54) workers\nin the United States, 2023", x="") +
+  labs(title="Unemploment rate by sex\namong prime-age (ages 24–54) workers\nin the United States, 2023", x="",
+       caption="Data Source: US Census Bureau — Current Population Survey microdata") +
   guides(fill="none") +
   scale_fill_manual(values=c(my_palette[5], my_palette[1])) +
   my_theme
@@ -231,7 +235,7 @@ ur.display %>% ggplot(aes(x=sex, y=unemployment, fill=sex, label=paste0(pctStyle
 
 And, again, I've opted to include the monthly view.\
 
-```{r}
+```{r fig.height=4}
 unemp %>% 
   ggplot(aes(x=month, y=rate, col=sex, ymin=rate-err, ymax=rate+err)) + 
   geom_line(linetype=2) +
@@ -243,13 +247,14 @@ unemp %>%
   labs(x="Month", 
        y="Unemployment Rate", 
        color="Sex",
-       title="Unemployment rate by sex\namong prime-age (ages 24–54) workers\nin the United States, 2023") +
+       title="Unemployment rate by sex\namong prime-age (ages 24–54) workers\nin the United States, 2023",
+       caption="Data Source: US Census Bureau — Current Population Survey") +
   my_theme +
   theme(legend.position="bottom")
 
 ```
 
-Although these visualizations, and their prompt, consider the rates for these groups independently, it feels important to convey whether the difference between these two subgroups is statistically significant. That may be beyond our scope here, but the overlapping error bars in several months encouraged a bit of extra digging. Some difference-of-proportion p-value calculations suggest that the whole-year difference (and several monthly differences) is not significant at a $p \le 0.05$ level.\
+Although these visualizations and their prompt consider the rates for these groups independently, it feels important to convey whether the difference between these two subgroups is statistically significant. That may be beyond our scope here, but the overlapping error bars in several months encouraged a bit of extra digging. Some difference-of-proportion p-value calculations suggest that the whole-year difference (and several monthly differences) is not significant at a $p \le 0.05$ level.\
 
 ```{r}
 unemp_sig23 = propDiffSig(m_unemp,
@@ -266,7 +271,7 @@ $p$ for the difference in male and female unemployment rates in *all months* in 
 
 
 
-$p$ for the difference in male and female unemployment rates in *each month* in 2023:
+$p$ for the difference in male and female unemployment rates in *each month* in 2023:\
 ```{r}
 kbl(unemp_sig, booktabs=T, linesep="", align="c") %>% kable_styling(latex_options="hold_position") %>%
   column_spec(2, background = spec_color(log(unemp_sig$p), begin=0.4, end=0.7)) %>%
@@ -316,7 +321,8 @@ lfp23 %>% mutate(X=row_number(),
   labs(fill="", 
        x="Racial group", 
        y="Labor force participation",
-       title="Labor force participation by racial group\namong prime-age (ages 24–54) workers\nin the United States, 2023") +
+       title="Labor force participation by racial group\namong prime-age (ages 24–54) workers\nin the United States, 2023",
+       caption="Data Source: US Census Bureau — Current Population Survey") +
   my_theme +
   coord_flip()
 ```
